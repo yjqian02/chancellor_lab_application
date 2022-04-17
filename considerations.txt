@@ -1,0 +1,31 @@
+Tabulations: 
+1 | Total number of posts
+2 | Total number of unique authors
+3 | Average post length (measured in word count)
+4 | Date range of the dataset
+5 | Top 20 most important words in the posts (selftext
+
+
+0 | General Considerations: 
+    Why use Pandas?
+    - Its speed and efficiency is sufficient for tabulations 1-5
+
+1 | Total number of posts
+    Assumptions:
+    - [deleted] differs from [removed]
+    How do we address [deleted] and [removed] posts?
+    - I decided to come up with totals of all these numbers
+      since the title data may still be important for analysis
+      (though there are questions as to whether removed posts
+      should be used at all in analysis)
+
+3 | Average post length (measured in word count)
+    Assumptions:
+    - numbers count as words
+    What "clean-up" was done?
+    - exclude [removed] and [deleted] posts from avg post length
+      calculations
+    - exclude emojis and punctuation
+      ex: "I like [smilelyFaceEmoji] cats ?!" has 3 words
+    - reference: https://stackoverflow.com/questions/47464658/python-efficient-way-to-remove-emojis-and-some-punctuation-from-a-large-dataset
+
