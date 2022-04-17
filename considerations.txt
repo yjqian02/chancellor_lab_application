@@ -3,7 +3,7 @@ Tabulations:
 2 | Total number of unique authors
 3 | Average post length (measured in word count)
 4 | Date range of the dataset
-5 | Top 20 most important words in the posts (selftext
+5 | Top 20 most important words in the posts
 
 
 0 | General Considerations: 
@@ -34,6 +34,28 @@ Tabulations:
     - included [removed] and [deleted] posts in calculation assuming
       that data will be important for analysis
     Clean-up:
-    - There was one line with the url in the date column. For now 
-      I just skipped over it. 
+    - There was one line with the url in the date column. Since it was
+      only one line I just ignored it. I will need to "clean up" or 
+      account for data in the wrong column if I use the full_link data later
+
+5 | Top 20 most important words in the posts
+    How do we define what the most important words are? 
+    - filter out filler words and do clean-up (punctuation, emojis, etc.)
+    - frequency
+    - key words (words like "kill" or "suicide" that are associated with high
+      risk situations)
+    - assign weighted values to each category (frequency, risk, etc) and then
+      find words with top scores
+    - use existing Natural Language Processing algorithms to do topic modeling
+        - from what I understand topic modeling has more applications to recommender
+          systems and text summarization so if we defined the "most important" words
+          as the words that best "summarize" or describe the dataset of posts
+          then this would be a good choice
+        - however, if we define "most important" words as words of high risk, 
+          discrimination, isolation, and other factors (consulting more
+          clinical research to determine these topics is necessary, I'm just giving
+          examples) then it seems like topic modeling would not be appropriate for this
+          situation
+    References: 
+    - comparing python libraries for topic modeling: 
 
