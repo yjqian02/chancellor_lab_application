@@ -59,8 +59,12 @@ Discussion:
     - Not accounting for how a word is written (anything from grammar to style)
 
 6 | Additional tabulation
-  a | visualization of 5 most common topics
-  b | Topic Modeling to find top 20 words
+  a | visualization of 5 most common topics (using title words)
+  b | visualization of
+    - posts containing swear words
+    - posts with self-diagnosis
+  c | visualization of emotional ranges of posts
+  d | Topic Modeling to find top 20 words
       - use existing Natural Language Processing algorithms to do topic modeling
         - from what I understand topic modeling has more applications to recommender
           systems and text summarization so if we defined the "most important" words

@@ -132,3 +132,42 @@ if __name__ == "__main__":
         d_vocab[i] = d_vocab[i].lower()
 
     tabulate('depression-sampled.csv')
+
+
+# PS C:\Users\a1z26\Documents\chancellor_lab_application> python .\tabulation.py
+# C:\Users\a1z26\Documents\chancellor_lab_application\tabulation.py:85: FutureWarning: The default value of regex will change from True to False in a future version.
+#   posts_clean = data["selftext"].str.replace(r'[^\w\s]', '', flags=re.UNICODE)
+# There are 30000 posts in the dataset.
+
+# There are 342 deleted posts in the dataset.      
+
+# There are 3082 removed posts in the dataset.     
+
+# There are 24725 unique authors in the dataset.   
+
+# The average post length is 172.75 words.
+
+# The date range of the datset is:
+# 2019-07-27 20:33:34 to 2020-11-23 20:30:46       
+
+# The twenty most important words in the posts are:
+# 1 : time
+# 2 : feel
+# 3 : friends
+# 4 : want
+# 5 : depression
+# 6 : life
+# 7 : help
+# 8 : cant
+# 9 : family
+# 10 : talk
+# 11 : nothing
+# 12 : depressed
+# 13 : need
+# 14 : never
+# 15 : think
+# 16 : day
+# 17 : alone
+# 18 : parents
+# 19 : years
+# 20 : tired
