@@ -59,7 +59,8 @@ Discussion:
     - Not accounting for how a word is written (anything from grammar to style)
 
 6 | Additional tabulation
-  a | Topic Modeling to find top 20 words
+  a | visualization of 5 most common topics
+  b | Topic Modeling to find top 20 words
       - use existing Natural Language Processing algorithms to do topic modeling
         - from what I understand topic modeling has more applications to recommender
           systems and text summarization so if we defined the "most important" words
@@ -72,4 +73,9 @@ Discussion:
           situation
       References: 
       - comparing python libraries for topic modeling: 
+  
+7 | Ideas I didn't get to
+  - ELIZA-like responses using regex matching of phrases
+  - in application, an automated bot that sends links to helpline phone numbers/websites as reddit replies
+  
 
