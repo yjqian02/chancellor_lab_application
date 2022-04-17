@@ -29,3 +29,11 @@ Tabulations:
       ex: "I like [smilelyFaceEmoji] cats ?!" has 3 words
     - reference: https://stackoverflow.com/questions/47464658/python-efficient-way-to-remove-emojis-and-some-punctuation-from-a-large-dataset
 
+4 | Date range of the dataset
+    Assumptions:
+    - included [removed] and [deleted] posts in calculation assuming
+      that data will be important for analysis
+    Clean-up:
+    - There was one line with the url in the date column. For now 
+      I just skipped over it. 
+

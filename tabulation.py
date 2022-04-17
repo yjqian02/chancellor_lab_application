@@ -11,7 +11,7 @@
 
 import pandas
 import re
-import datetime
+from datetime import datetime
 import time
 
 def tabulate(filename):
@@ -33,6 +33,20 @@ def tabulate(filename):
         post = post.split(" ")
         if post != "[deleted]" and post != "[removed]":
             sum += len(post)
+    
+    dates = data["created_utc"]
+    dt_dates = []
+    # print(dates[16052])
+    for i in range(len(dates)):
+        if "http" not in dates[i]:
+        # d = int(dates[i])
+        # print(d)
+            dt_dates.append(datetime.fromtimestamp(int(dates[i])))
+    dt_dates.sort()
+    # x = datetime.fromtimestamp(int(data["created_utc"][0]))
+    # y = datetime.fromtimestamp(int(data["created_utc"][2]))
+    # print(x > y, x, y)
+    print("The date range of the datset is from {} to {}.\n".format(dt_dates[0], dt_dates[-1]))
     
     # print("There are", num_posts, "posts in the dataset.\n")
     # print("There are", num_deleted, "deleted posts in the dataset.\n")
