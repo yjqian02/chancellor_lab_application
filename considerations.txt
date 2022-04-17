@@ -1,9 +1,11 @@
-Tabulations: 
+Discussion:
+0 | General Considerations
 1 | Total number of posts
 2 | Total number of unique authors
 3 | Average post length (measured in word count)
 4 | Date range of the dataset
 5 | Top 20 most important words in the posts
+6 | Additional Tabulations
 
 
 0 | General Considerations: 
@@ -46,7 +48,19 @@ Tabulations:
       risk situations)
     - assign weighted values to each category (frequency, risk, etc) and then
       find words with top scores
-    - use existing Natural Language Processing algorithms to do topic modeling
+    Limiations: 
+    - Did not take into account emphasis/deemphasis with punctuation
+    - Did not account for words relative to other words
+    - Did not account for words relative to word requences and the post as a whole
+    - Did not account for words relative to post titles
+    - Should account for word stems for efficiency (go is similar to going, etc.)
+    - I filtered out word variations, but I'm not sure what the implications are
+      of a keeping a word like "word" vs a word like "job"
+    - Not accounting for how a word is written (anything from grammar to style)
+
+6 | Additional tabulation
+  a | Topic Modeling to find top 20 words
+      - use existing Natural Language Processing algorithms to do topic modeling
         - from what I understand topic modeling has more applications to recommender
           systems and text summarization so if we defined the "most important" words
           as the words that best "summarize" or describe the dataset of posts
@@ -56,6 +70,6 @@ Tabulations:
           clinical research to determine these topics is necessary, I'm just giving
           examples) then it seems like topic modeling would not be appropriate for this
           situation
-    References: 
-    - comparing python libraries for topic modeling: 
+      References: 
+      - comparing python libraries for topic modeling: 
 
