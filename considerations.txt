@@ -8,9 +8,6 @@ Discussion:
 6 | Additional Tabulations
 
 
-TODO: 
-top 20 posts should consider score AND num comments too
-
 0 | General Considerations: 
     Why use Pandas?
     - Its speed and efficiency is sufficient for tabulations 1-5
@@ -49,7 +46,7 @@ top 20 posts should consider score AND num comments too
     - frequency
     - key words (words like "kill" or "suicide" that are associated with high
       risk situations)
-    - assign weighted values to each category (frequency, risk, etc) and then
+    - assign weighted values to each category (frequency, risk, scores, comments) and then
       find words with top scores
     Limiations: 
     - Did not take into account emphasis/deemphasis with punctuation
@@ -60,17 +57,20 @@ top 20 posts should consider score AND num comments too
     - I filtered out word variations, but I'm not sure what the implications are
       of a keeping a word like "word" vs a word like "job"
     - Not accounting for how a word is written (anything from grammar to style)
+    - Not accounting for slang/captialization
 
 6 | Additional tabulation
-  a | visualization of 5 most common topics (using title words)
+  a | visualization of scores vs comments for posts with and without outliers
+    - I chose to do a scatter plot because that allows for outliers to be viewed vs
+      a histogram
+  b | visualization of posts by date vs num comments (with size increasing by score)
+  c | visualization for most common topics (using title words)
       with number of comments and score
       reference for what library: https://www.analyticsvidhya.com/blog/2021/08/understanding-bar-plots-in-python-beginners-guide-to-data-visualization/
-  b | ELIZA-like responses using regex matching of phrases
-      References: 
-      - comparing python libraries for topic modeling: 
   
 7 | Ideas I didn't get to
   - in application, an automated bot that sends links to helpline phone numbers/websites as reddit replies
+    - using regex matching of phrases
   - chart the emotional ranges of posts
   - Topic Modeling to find top 20 words
       - use existing Natural Language Processing algorithms to do topic modeling

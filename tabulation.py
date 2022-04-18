@@ -15,6 +15,8 @@ from datetime import datetime
 from collections import defaultdict
 import matplotlib.pyplot as plt
 import pandas as pd
+
+import cProfile
 # import nltk
 # nltk.download("stopwords")
 # from nltk.corpus import stopwords
@@ -88,8 +90,9 @@ def tabulate(filename):
     # reference: https://stackoverflow.com/questions/47464658/python-efficient-way-to-remove-emojis-and-some-punctuation-from-a-large-dataset
     
     # avg length of posts
+    # sum up lengths of valid posts and 
     # assign each word a weighting based on frequency and
-    # whether identification with "risk" words
+    # whether identification with "risk" words (for top 20 words)
     word_weight = defaultdict(int) 
     sum = 0
     for i in range(len(posts_clean)):
@@ -102,7 +105,7 @@ def tabulate(filename):
                 # increase weight of posts with more comments
                 num_com = data["num_comments"][i]
                 if not pd.isna(num_com):
-                    word_weight[word] += int()
+                    word_weight[word] += int(num_com)
                 # increase weight of posts with polarizing scores
                 # (ie very positive or very negative)
                 score = data["score"][i]
@@ -111,7 +114,6 @@ def tabulate(filename):
                 # increase weight of risk words
                 if word in d_vocab:
                         word_weight[word] += 1 
-                
             
     # date range
     dates = data["created_utc"]
@@ -119,7 +121,7 @@ def tabulate(filename):
     for i in range(len(dates)):
         # skip over invalid dates/erroring data
         if "http" not in dates[i]: 
-            dt_dates.append(datetime.fromtimestamp(int(dates[i])))
+            dt_dates.append(datetime.fromtimestamp(int(dates[i])))    
     dt_dates.sort()
 
     # 20 most important posts
@@ -133,63 +135,75 @@ def tabulate(filename):
             count += 1
 
     ## additional tabulation
-
     # visulatization of scores vs comments
-    # df_scores = pd.DataFrame(list(data["score"]))
+    # with outliers
     plt.scatter(list(data["num_comments"]),list(data["score"]))
     plt.ylabel("Score")
     plt.xlabel("Number of Comments")
-    plt.title("Scores vs Comments Visualized with outliers")
+    plt.title("Scores vs Comments Visualized With outliers")
     plt.show()
 
+    # without outliers
     plt.scatter(list(data["num_comments"]),list(data["score"]))
     plt.ylabel("Score")
     plt.xlabel("Number of Comments")
     plt.xlim(0, 400)
-    plt.title("Scores vs Comments Visualized without outliers")
+    plt.title("Scores vs Comments Visualized Without Outliers")
     plt.show()
 
+    # visualization of date vs comments (amplified by score)
+    dates = data["created_utc"]
+    dt_dates = []
+    comments_for_dates = []
+    scores_for_amp = []
+    for i in range(len(dates)):
+        # skip over invalid dates/erroring data
+        if "http" not in dates[i] and not pd.isna(data["score"][i]): 
+            dt_dates.append(datetime.fromtimestamp(int(dates[i])))
+            comments_for_dates.append(int(data["num_comments"][i]))
+            scores_for_amp.append(abs(float(data["score"][i])))
 
-    # vis_data = pd.DataFrame(vis_data, index=list(cats.keys()))
-    # vis_data.plot(kind="bar")
-    # plt.ylabel("Average Scores/Number of Comments")
-    # plt.xlabel("Post Category")
-    # plt.title("Average Scores and  Number of Comments for Posts in Top Categories")
-    # plt.show()
+    for i in range(len(scores_for_amp)):
+        scores_for_amp[i] /= 10
 
-    # visualization of comments
+    plt.scatter(comments_for_dates, dt_dates, s = scores_for_amp)
+    plt.xlabel("Number of Comments")
+    plt.ylabel("Post Creation Date")
+    plt.xlim(0, 400)
+    plt.title("Post Timeline with Score Amplification")
+    plt.show()
 
     # visualization of avg # comments and avg scores
-    # titles = data["title"].str.replace(r'[^\w\s]', '', flags=re.UNICODE)
-    # title_fq = defaultdict(int)
-    # for i in range(len(titles)):
-    #     title = str(titles[i])
-    #     title = title.split(" ")
-    #     for word in title:
-    #         if word.lower() not in common:
-    #             title_fq[word] += 1
-    # title_fq = dict(reversed(sorted(title_fq.items(), key=lambda x:x[1])))
-    # cats = defaultdict(int)
-    # cats_com = defaultdict(int)
-    # cats_score = defaultdict(int)
-    # vis_data = defaultdict(list)
-    # i = 0
-    # for title in title_fq.keys():
-    #     if i < 21:
-    #         cats[title] = 0
-    #         i += 1
-    # for i in range(len(titles)):
-    #     title = str(titles[i])
-    #     for cat in cats.keys():
-    #         if cat in title:
-    #             cats[cat] += 1
-    #             cats_com[cat] += data["num_comments"][i]
-    #             cats_score[cat] += data["score"][i]
-    # # calculate average scores and number of comments
-    # for cat, score in cats_score.items():
-    #     vis_data["Score"].append(score // cats[cat])
-    # for cat, com in cats_com.items():
-    #     vis_data["Comments"].append(com // cats[cat])
+    titles = data["title"].str.replace(r'[^\w\s]', '', flags=re.UNICODE)
+    title_fq = defaultdict(int)
+    for i in range(len(titles)):
+        title = str(titles[i])
+        title = title.split(" ")
+        for word in title:
+            if word.lower() not in common:
+                title_fq[word] += 1
+    title_fq = dict(reversed(sorted(title_fq.items(), key=lambda x:x[1])))
+    cats = defaultdict(int)
+    cats_com = defaultdict(int)
+    cats_score = defaultdict(int)
+    vis_data = defaultdict(list)
+    i = 0
+    for title in title_fq.keys():
+        if i < 21:
+            cats[title] = 0
+            i += 1
+    for i in range(len(titles)):
+        title = str(titles[i])
+        for cat in cats.keys():
+            if cat in title:
+                cats[cat] += 1
+                cats_com[cat] += data["num_comments"][i]
+                cats_score[cat] += data["score"][i]
+    # calculate average scores and number of comments
+    for cat, score in cats_score.items():
+        vis_data["Score"].append(score // cats[cat])
+    for cat, com in cats_com.items():
+        vis_data["Comments"].append(com // cats[cat])
 
     # vis_data = pd.DataFrame(vis_data, index=list(cats.keys()))
     # vis_data.plot(kind="bar")
@@ -197,7 +211,6 @@ def tabulate(filename):
     # plt.xlabel("Post Category")
     # plt.title("Average Scores and  Number of Comments for Posts in Top Categories")
     # plt.show()
-
 
     # print("There are", num_posts, "posts in the dataset.\n")
     # print("There are", num_deleted, "deleted posts in the dataset.\n")
@@ -209,10 +222,6 @@ def tabulate(filename):
     # for i, word in top_twenty.items():
     #     print(i, ":", word)
 
-    # ELIZA mock-up
-    def eliza(response):
-        return
-
 if __name__ == "__main__":
     d_vocab = d_vocab.split(',')
     for i in range(len(d_vocab)):
@@ -221,3 +230,40 @@ if __name__ == "__main__":
 
     tabulate('depression-sampled.csv')
 
+
+
+## sample output
+# There are 30000 posts in the dataset.
+
+# There are 342 deleted posts in the dataset.
+
+# There are 3082 removed posts in the dataset.
+
+# There are 24725 unique authors in the dataset.
+
+# The average post length is 172.75 words.
+
+# The date range of the datset is:
+# 2020-10-13 12:22:17 to 2019-08-23 13:47:19
+
+# The twenty most important words in the posts are:
+# 1 : feel
+# 2 : life
+# 3 : time
+# 4 : friends
+# 5 : never
+# 6 : think
+# 7 : day
+# 8 : help
+# 9 : die
+# 10 : years
+# 11 : better
+# 12 : talk
+# 13 : school
+# 14 : someone
+# 15 : every
+# 16 : anyone
+# 17 : fucking
+# 18 : work
+# 19 : need
+# 20 : anymore
