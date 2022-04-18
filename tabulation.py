@@ -13,35 +13,36 @@ import pandas
 import re
 from datetime import datetime
 from collections import defaultdict
-import nltk
+import matplotlib.pyplot as plt
+# import nltk
 # nltk.download("stopwords")
-from nltk.corpus import stopwords
+# from nltk.corpus import stopwords
 
 
 # global lists for part 5
 # altered list from stopwords.words() from nltk 
 # "" is to account for first index
-common = ['i', 'im', 'me', 'my', 'myself', 'we', 'our', 'ours',
-    'ourselves', 'you', "youre", "yove", "youll", "youd",
-    'your', 'yours', 'yourself', 'yourselves', 'he', 'him',
-    'his', 'himself', 'she', "she's", 'her', 'hers', 'herself',
-    'it', "its", 'its', 'itself', 'they', 'them', 'their',
-    'theirs', 'themselves', 'what', 'which', 'who', 'whom',
-    'this', 'that', "tha'll", 'these', 'those', 'am', 'is',
-    'are', 'was', 'were', 'be', 'been', 'being', 'have', 'has',
-    'had', 'having', 'do', 'does', 'did', 'doing', 'a', 'an',
-    'the', 'and', 'but', 'if', 'or', 'because', 'as', 'until',
-    'while', 'of', 'at', 'by', 'for', 'with', 'about', 'against',
-    'between', 'into', 'through', 'during', 'before', 'after', 'above',
-    'below', 'to', 'from', 'up', 'down', 'in', 'out', 'on', 'off', 'over',
-    'under', 'again', 'further', 'then', 'once', 'here', 'there', 'when',
-    'where', 'why', 'how', 'all', 'any', 'both', 'each', 'few', 'more', 'most',
-    'other', 'some', 'such', 'no', 'nor', 'not', 'only', 'own', 'same', 'so', 'than', 'too', 'very', 's', 't',
-    'can', 'will', 'just', 'don', "don't", 'should', "should've", 'now', 'd', 'll', 'm', 'o',
-    're', 've', 'y', 'ain', 'aren', "aren't", 'couldn', "couldn't", 'didn', "didnt", 'doesn', "doesnt", 'hadn',
-    "hadn't", 'hasn', "hasnt", 'haven', "havent", 'isn', "isnt", 'ma', 'mightn', "mightnt", 'mustn',
-    "mustn't", 'needn', "neednt", 'shan', "shant", 'shouldn', "shouldn't", 'wasn', "wasnt", 'weren',
-    "werent", 'won', "wont", 'wouldn', "wouldnt", "dont", "ive", "like", "know", "even", "one", "would", "much", 
+common = ["i", "im", "me", "my", "myself", "we", "our", "ours",
+    "ourselves", "you", "youre", "yove", "youll", "youd",
+    "your", "yours", "yourself", "yourselves", "he", "him",
+    "his", "himself", "she", "shes", "her", "hers", "herself","want",
+    "it", "its", "its", "itself", "they", "them", "their", "depressed",
+    "theirs", "themselves", "what", "which", "who", "whom",
+    "this", "that", "thall", "these", "those", "am", "is",
+    "are", "was", "were", "be", "been", "being", "have", "has",
+    "had", "having", "do", "does", "did", "doing", "a", "an", "what", "or", "just",
+    "the", "and", "but", "if", "or", "because", "as", "until",
+    "while", "of", "at", "by", "for", "with", "about", "against",
+    "between", "into", "through", "during", "before", "after", "above",
+    "below", "to", "from", "up", "down", "in", "out", "on", "off", "over",
+    "under", "again", "further", "then", "once", "here", "there", "when", "cant",
+    "where", "why", "how", "all", "any", "both", "each", "few", "more", "most",
+    "other", "some", "such", "no", "nor", "not", "only", "own", "same", "so", "than", "too", "very", "s", "t",
+    "can", "will", "just", "don", "dont", "should", "shouldve", "now", "d", "ll", "m", "o",
+    "re", "ve", "y", "ain", "aren", "arent", "couldn", "couldnt", "didn", "didnt", "doesn", "doesnt", "hadn",
+    "hadnt", "hasn", "hasnt", "haven", "havent", "isn", "isnt", "ma", "mightn", "mightnt", "mustn",
+    "mustnt", "needn", "neednt", "shan", "shant", "shouldn", "shouldnt", "wasn", "wasnt", "weren",
+    "werent", "won", "wont", "wouldn", "wouldnt", "dont", "ive", "like", "know", "even", "one", "would", "much", 
     "going", "really", "things", "back", "make", "get", "", "could", "still", "something", "go", "got", "people", "way", 
     "feeling", "good", "always", "ever", "since", "say", "getting", "see", "year", "anything"]
     # starter set of 'risk' words from: https://myvocabulary.com/word-list/depression-vocabulary/
@@ -86,7 +87,9 @@ def tabulate(filename):
     # reference: https://stackoverflow.com/questions/47464658/python-efficient-way-to-remove-emojis-and-some-punctuation-from-a-large-dataset
     
     # avg length of posts
-    word_prob = defaultdict(int)
+    # assign each word a weighting based on frequency and
+    # whether identification with "risk" words
+    word_weight = defaultdict(int) 
     sum = 0
     for i in range(len(posts_clean)):
         post = str(posts_clean[i])
@@ -94,36 +97,70 @@ def tabulate(filename):
         if post != "[deleted]" and post != "[removed]":
             sum += len(post)
             for word in post:
-                word_prob[word] += 1
+                word_weight[word] += 1
                 if word in d_vocab:
-                        word_prob[word] += 1 # increase probabiity of risk words
+                        # increase probabiity of risk words
+                        word_weight[word] += 1 
             
     # date range
     dates = data["created_utc"]
     dt_dates = []
     for i in range(len(dates)):
-        if "http" not in dates[i]: # skip over invalid dates/erroring data
+        # skip over invalid dates/erroring data
+        if "http" not in dates[i]: 
             dt_dates.append(datetime.fromtimestamp(int(dates[i])))
     dt_dates.sort()
 
     # 20 most important posts
     top_twenty = {}
     count = 1
-    word_prob = dict(sorted(word_prob.items(), key=lambda x:x[1]))
-    for i, (word,prob) in enumerate(reversed(word_prob.items())):
+    # sort word weights from highest to lowest
+    word_weight = dict(reversed(sorted(word_weight.items(), key=lambda x:x[1])))
+    for word in word_weight.keys():
         if count < 21 and word.lower() not in common:
             top_twenty[count] = word
             count += 1
 
-    print("There are", num_posts, "posts in the dataset.\n")
-    print("There are", num_deleted, "deleted posts in the dataset.\n")
-    print("There are", num_removed, "removed posts in the dataset.\n")
-    print("There are", len(unique_authors), "unique authors in the dataset.\n")
-    print("The average post length is {:0.2f} words.\n".format(sum / (num_posts - num_deleted - num_removed)))
-    print("The date range of the datset is:\n{} to {}\n".format(dt_dates[0], dt_dates[-1]))
-    print("The twenty most important words in the posts are:")
-    for i, word in top_twenty.items():
-        print(i, ":", word)
+    # additional tabulation
+    # five most common topics
+    titles = data["title"].str.replace(r'[^\w\s]', '', flags=re.UNICODE)
+    title_fq = defaultdict(int)
+    for i in range(len(titles)):
+        title = str(titles[i])
+        title = title.split(" ")
+        for word in title:
+            if word.lower() not in common:
+                title_fq[word] += 1
+    title_fq = dict(reversed(sorted(title_fq.items(), key=lambda x:x[1])))
+    five_topics = {}
+    i = 0
+    for title in title_fq.keys():
+        if i < 5:
+            five_topics[title] = 0
+            i += 1
+    for title in titles:
+        for topic in five_topics.keys():
+            if topic in str(title):
+                five_topics[topic] += 1
+    # for topic, freq in five_topics.items():
+    #     print(topic, freq)
+    plt.bar(list(five_topics.keys()), list(five_topics.values()), width = 0.2)
+    plt.ylabel("Number of posts")
+    plt.xlabel("Post Category")
+    plt.title("Number of Posts in 5 Broad Categories")
+    plt.show()
+
+
+
+    # print("There are", num_posts, "posts in the dataset.\n")
+    # print("There are", num_deleted, "deleted posts in the dataset.\n")
+    # print("There are", num_removed, "removed posts in the dataset.\n")
+    # print("There are", len(unique_authors), "unique authors in the dataset.\n")
+    # print("The average post length is {:0.2f} words.\n".format(sum / (num_posts - num_deleted - num_removed)))
+    # print("The date range of the datset is:\n{} to {}\n".format(dt_dates[0], dt_dates[-1]))
+    # print("The twenty most important words in the posts are:")
+    # for i, word in top_twenty.items():
+    #     print(i, ":", word)
 
 if __name__ == "__main__":
     d_vocab = d_vocab.split(',')
@@ -133,41 +170,3 @@ if __name__ == "__main__":
 
     tabulate('depression-sampled.csv')
 
-
-# PS C:\Users\a1z26\Documents\chancellor_lab_application> python .\tabulation.py
-# C:\Users\a1z26\Documents\chancellor_lab_application\tabulation.py:85: FutureWarning: The default value of regex will change from True to False in a future version.
-#   posts_clean = data["selftext"].str.replace(r'[^\w\s]', '', flags=re.UNICODE)
-# There are 30000 posts in the dataset.
-
-# There are 342 deleted posts in the dataset.      
-
-# There are 3082 removed posts in the dataset.     
-
-# There are 24725 unique authors in the dataset.   
-
-# The average post length is 172.75 words.
-
-# The date range of the datset is:
-# 2019-07-27 20:33:34 to 2020-11-23 20:30:46       
-
-# The twenty most important words in the posts are:
-# 1 : time
-# 2 : feel
-# 3 : friends
-# 4 : want
-# 5 : depression
-# 6 : life
-# 7 : help
-# 8 : cant
-# 9 : family
-# 10 : talk
-# 11 : nothing
-# 12 : depressed
-# 13 : need
-# 14 : never
-# 15 : think
-# 16 : day
-# 17 : alone
-# 18 : parents
-# 19 : years
-# 20 : tired
