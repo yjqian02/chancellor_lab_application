@@ -8,6 +8,9 @@ Discussion:
 6 | Additional Tabulations
 
 
+TODO: 
+top 20 posts should consider score AND num comments too
+
 0 | General Considerations: 
     Why use Pandas?
     - Its speed and efficiency is sufficient for tabulations 1-5
