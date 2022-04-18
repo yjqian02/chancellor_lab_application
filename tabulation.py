@@ -14,6 +14,7 @@ import re
 from datetime import datetime
 from collections import defaultdict
 import matplotlib.pyplot as plt
+import pandas as pd
 # import nltk
 # nltk.download("stopwords")
 # from nltk.corpus import stopwords
@@ -122,7 +123,7 @@ def tabulate(filename):
             count += 1
 
     # additional tabulation
-    # five most common topics
+    # visualization of avg # comments and avg scores
     titles = data["title"].str.replace(r'[^\w\s]', '', flags=re.UNICODE)
     title_fq = defaultdict(int)
     for i in range(len(titles)):
@@ -132,22 +133,45 @@ def tabulate(filename):
             if word.lower() not in common:
                 title_fq[word] += 1
     title_fq = dict(reversed(sorted(title_fq.items(), key=lambda x:x[1])))
-    five_topics = {}
+    five_cats = defaultdict(int)
+    five_cats_com = defaultdict(int)
+    five_cats_score = defaultdict(int)
+    vis_data = defaultdict(list)
     i = 0
     for title in title_fq.keys():
         if i < 5:
-            five_topics[title] = 0
+            five_cats[title] = 0
             i += 1
-    for title in titles:
-        for topic in five_topics.keys():
-            if topic in str(title):
-                five_topics[topic] += 1
-    # for topic, freq in five_topics.items():
-    #     print(topic, freq)
-    plt.bar(list(five_topics.keys()), list(five_topics.values()), width = 0.2)
-    plt.ylabel("Number of posts")
+    for i in range(len(titles)):
+        title = str(titles[i])
+        for cat in five_cats.keys():
+            if cat in title:
+                five_cats[cat] += 1
+                five_cats_com[cat] += data["num_comments"][i]
+                five_cats_score[cat] += data["score"][i]
+    # for cat, vals_lst in vis_data.items():
+    #     freq = five_cats[cat]
+    #     avg_num_com = five_cats_com[cat] // freq
+    #     avg_num_score = five_cats_score[cat] // freq
+    #     # vals_lst.append(freq)
+    #     vals_lst.append(avg_num_com)
+    #     vals_lst.append(avg_num_score)
+    # for cat, val in vis_data.items():
+    #     print(cat, val)
+    
+    for cat, score in five_cats_score.items():
+        vis_data["Score"].append(score // five_cats[cat])
+    for cat, com in five_cats_com.items():
+        vis_data["Comments"].append(com // five_cats[cat])
+
+    vis_data = pd.DataFrame(vis_data, index=list(five_cats.keys()))
+    vis_data.plot(kind="bar")
+    # for cat, val in vis_data.items():
+    #     print(cat, val)
+    # plt.bar(list(five_cats.keys()), list(five_cats.values()), width = 0.2)
+    plt.ylabel("Average Number of Scores/Comments")
     plt.xlabel("Post Category")
-    plt.title("Number of Posts in 5 Broad Categories")
+    plt.title("Average Number of Scores and Comments for Posts in 5 Categories")
     plt.show()
 
 

@@ -60,6 +60,8 @@ Discussion:
 
 6 | Additional tabulation
   a | visualization of 5 most common topics (using title words)
+      with number of comments and score
+      reference for what library: https://www.analyticsvidhya.com/blog/2021/08/understanding-bar-plots-in-python-beginners-guide-to-data-visualization/
   b | Topic Modeling to find top 20 words
       - use existing Natural Language Processing algorithms to do topic modeling
         - from what I understand topic modeling has more applications to recommender
