@@ -48,7 +48,7 @@ Discussion:
       risk situations)
     - assign weighted values to each category (frequency, risk, scores, comments) and then
       find words with top scores
-    Limiations: 
+    Limitations: 
     - Did not take into account emphasis/deemphasis with punctuation
     - Did not account for words relative to other words
     - Did not account for words relative to word requences and the post as a whole
