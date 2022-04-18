@@ -10,6 +10,7 @@
 #     Top 20 most important words in the posts
 
 import re                           # use re for regex (data cleaning)
+import sys                          # use for reading in command line arguments
 from datetime import datetime       # use datetime to find time frame
 from collections import defaultdict # use collections to have dictionaries with default values
 import matplotlib.pyplot as plt     # use matplotlib for visualization
@@ -74,23 +75,8 @@ d_vocab = '''Ability, Abnormal, Abuse, Adolescents, Affect, Agency, Aid,
     Uncertain, Uncomfortable, Understanding, Unfulfilled, Unique, Unsettling, Unusual,
     Validation, Victim,
     Warning, Watch, Withdrawal, World Health Organization, Worry, Worthless	YouthZero'''
-
-def tabulate(filename):
-    data = pd.read_csv(filename, header=0)
-    data_deleted = data[data["selftext"] == "[deleted]"]
-    data_removed = data[data["selftext"] == "[removed]"]
-    # vals = ["[deleted]", "[removed]"]
-    # data_clean = data[data["selftext"].isin(vals) == False] 
-    # # reference: https://www.statology.org/pandas-drop-rows-with-value/
-    unique_authors = data["author"].unique()
-    num_posts = len(data)
-    num_deleted = len(data_deleted)
-    num_removed = len(data_removed)
-    posts_clean = data["selftext"].str.replace(r'[^\w\s]', '', flags=re.UNICODE, regex=True) 
-    # reference: https://stackoverflow.com/questions/47464658/python-efficient-way-to-remove-emojis-and-some-punctuation-from-a-large-dataset
-    
-    print("Load data", strftime("%Y-%m-%d %H:%M:%S", gmtime()))
-
+def avg_len(posts_clean, data):
+    print("inside avg_len")
     # avg length of posts
     # sum up lengths of valid posts and 
     # assign each word a weighting based on frequency and
@@ -100,7 +86,6 @@ def tabulate(filename):
     # cast pandas series to array for optimization (this is where the code runs slowest)
     # reference: https://stackoverflow.com/questions/68671852/best-way-to-iterate-through-elements-of-pandas-series
     for i, post in enumerate(posts_clean.to_numpy()):
-        post = str(post)
         post = post.split(" ")
         if post != "[deleted]" and post != "[removed]":
             sum += len(post)
@@ -117,9 +102,37 @@ def tabulate(filename):
                     word_weight[word] += abs(int(score))
                 # increase weight of risk words
                 if word in d_vocab:
-                        word_weight[word] += 1 
+                        word_weight[word] += 1
+    with open("data.pickle", "wb") as handle:
+        pickle.dump(word_weight, handle)
+    with open("sum.pickle", "wb") as handle:
+        pickle.dump(sum, handle)
 
-    print("Avg length", strftime("%Y-%m-%d %H:%M:%S", gmtime()))
+def tabulate(filename, load):
+    data = pd.read_csv(filename, header=0)
+    data_deleted = data[data["selftext"] == "[deleted]"]
+    data_removed = data[data["selftext"] == "[removed]"]
+    # vals = ["[deleted]", "[removed]"]
+    # data_clean = data[data["selftext"].isin(vals) == False] 
+    # # reference: https://www.statology.org/pandas-drop-rows-with-value/
+    unique_authors = data["author"].unique()
+    num_posts = len(data)
+    num_deleted = len(data_deleted)
+    num_removed = len(data_removed)
+    posts_clean = data["selftext"].str.replace(r'[^\w\s]', '', flags=re.UNICODE, regex=True) 
+    # reference: https://stackoverflow.com/questions/47464658/python-efficient-way-to-remove-emojis-and-some-punctuation-from-a-large-dataset
+    
+    # print("Load data", strftime("%Y-%m-%d %H:%M:%S", gmtime()))
+
+    word_weight = {}
+    sum = 0
+    if load == "True":
+        avg_len(posts_clean, data)
+    with open("data.pickle", "rb") as handle:
+        word_weight = pickle.load(handle)
+    with open("sum.pickle", "rb") as handle:
+        sum = pickle.load(handle)
+    # print("Avg length", strftime("%Y-%m-%d %H:%M:%S", gmtime()))
 
     # date range
     dates = data["created_utc"]
@@ -130,7 +143,7 @@ def tabulate(filename):
             dt_dates.append(datetime.fromtimestamp(int(dates[i])))    
     dt_dates.sort()
 
-    print("Date range", strftime("%Y-%m-%d %H:%M:%S", gmtime()))
+    # print("Date range", strftime("%Y-%m-%d %H:%M:%S", gmtime()))
 
     # 20 most important posts
     top_twenty = {}
@@ -142,26 +155,27 @@ def tabulate(filename):
             top_twenty[count] = word
             count += 1
 
-    print("20 most important", strftime("%Y-%m-%d %H:%M:%S", gmtime()))
+    # print("20 most important", strftime("%Y-%m-%d %H:%M:%S", gmtime()))
 
     ## additional tabulation
     # visulatization of scores vs comments
-    # with outliers
+    # with edge points (edge points instead of outliers because I didn't do the math for
+    # the to be outliers for sure)
     plt.scatter(list(data["num_comments"]),list(data["score"]))
     plt.ylabel("Score")
     plt.xlabel("Number of Comments")
-    plt.title("Scores vs Comments Visualized With outliers")
+    plt.title("Scores vs Comments Visualized With Edge Points")
     plt.show()
 
-    # without outliers
+    # without edge points
     plt.scatter(list(data["num_comments"]),list(data["score"]))
     plt.ylabel("Score")
     plt.xlabel("Number of Comments")
-    plt.xlim(0, 400)
-    plt.title("Scores vs Comments Visualized Without Outliers")
+    plt.xlim(0, 360)
+    plt.title("Scores vs Comments Visualized Without Edge Points")
     plt.show()
 
-    print("Additional Vis\nScores vs Comments", strftime("%Y-%m-%d %H:%M:%S", gmtime()))
+    # print("Additional Vis\nScores vs Comments", strftime("%Y-%m-%d %H:%M:%S", gmtime()))
 
     # visualization of date vs comments (amplified by score)
     dates = data["created_utc"]
@@ -181,11 +195,11 @@ def tabulate(filename):
     plt.scatter(comments_for_dates, dt_dates, s = scores_for_amp)
     plt.xlabel("Number of Comments")
     plt.ylabel("Post Creation Date")
-    plt.xlim(0, 400)
+    plt.xlim(0, 360)
     plt.title("Post Timeline with Score Amplification")
     plt.show()
 
-    print("Dates vs Comments", strftime("%Y-%m-%d %H:%M:%S", gmtime()))
+    # print("Dates vs Comments", strftime("%Y-%m-%d %H:%M:%S", gmtime()))
 
     # visualization of avg # comments and avg scores
     titles = data["title"].str.replace(r'[^\w\s]', '', flags=re.UNICODE)
@@ -226,7 +240,7 @@ def tabulate(filename):
     plt.title("Average Scores and  Number of Comments for Posts in Top Categories")
     plt.show()
 
-    print("Comments per Topic", strftime("%Y-%m-%d %H:%M:%S", gmtime()))
+    # print("Comments per Topic", strftime("%Y-%m-%d %H:%M:%S", gmtime()))
 
     print("There are", num_posts, "posts in the dataset.\n")
     print("There are", num_deleted, "deleted posts in the dataset.\n")
@@ -243,10 +257,12 @@ if __name__ == "__main__":
     for i in range(len(d_vocab)):
         d_vocab[i] = re.sub(r'\s+', "", d_vocab[i])
         d_vocab[i] = d_vocab[i].lower()
+    tabulate('depression-sampled.csv', sys.argv[1])
 
-    tabulate('depression-sampled.csv')
 
-
+# run script with: python .\tabulation.py False
+# if you do not have the data.pick and sum.pickle files then
+# run script with: python .\tabulation.py False
 
 ## sample output
 # There are 30000 posts in the dataset.
