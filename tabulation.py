@@ -24,11 +24,11 @@ import pandas as pd
 # altered list from stopwords.words() from nltk 
 # "" is to account for first index
 common = ["i", "im", "me", "my", "myself", "we", "our", "ours",
-    "ourselves", "you", "youre", "yove", "youll", "youd",
+    "ourselves", "you", "youre", "yove", "youll", "youd", "else",
     "your", "yours", "yourself", "yourselves", "he", "him",
     "his", "himself", "she", "shes", "her", "hers", "herself","want",
     "it", "its", "its", "itself", "they", "them", "their", "depressed",
-    "theirs", "themselves", "what", "which", "who", "whom",
+    "theirs", "themselves", "what", "which", "who", "whom", "depression",
     "this", "that", "thall", "these", "those", "am", "is",
     "are", "was", "were", "be", "been", "being", "have", "has",
     "had", "having", "do", "does", "did", "doing", "a", "an", "what", "or", "just",
@@ -74,7 +74,7 @@ d_vocab = '''Ability, Abnormal, Abuse, Adolescents, Affect, Agency, Aid,
     Warning, Watch, Withdrawal, World Health Organization, Worry, Worthless	YouthZero'''
 
 def tabulate(filename):
-    data = pandas.read_csv(filename, header=0)
+    data = pd.read_csv(filename, header=0)
     data_deleted = data[data["selftext"] == "[deleted]"]
     data_removed = data[data["selftext"] == "[removed]"]
     # vals = ["[deleted]", "[removed]"]
@@ -99,9 +99,19 @@ def tabulate(filename):
             sum += len(post)
             for word in post:
                 word_weight[word] += 1
+                # increase weight of posts with more comments
+                num_com = data["num_comments"][i]
+                if not pd.isna(num_com):
+                    word_weight[word] += int()
+                # increase weight of posts with polarizing scores
+                # (ie very positive or very negative)
+                score = data["score"][i]
+                if not pd.isna(score):
+                    word_weight[word] += abs(int(score))
+                # increase weight of risk words
                 if word in d_vocab:
-                        # increase probabiity of risk words
                         word_weight[word] += 1 
+                
             
     # date range
     dates = data["created_utc"]
@@ -122,45 +132,71 @@ def tabulate(filename):
             top_twenty[count] = word
             count += 1
 
-    # additional tabulation
-    # visualization of avg # comments and avg scores
-    titles = data["title"].str.replace(r'[^\w\s]', '', flags=re.UNICODE)
-    title_fq = defaultdict(int)
-    for i in range(len(titles)):
-        title = str(titles[i])
-        title = title.split(" ")
-        for word in title:
-            if word.lower() not in common:
-                title_fq[word] += 1
-    title_fq = dict(reversed(sorted(title_fq.items(), key=lambda x:x[1])))
-    five_cats = defaultdict(int)
-    five_cats_com = defaultdict(int)
-    five_cats_score = defaultdict(int)
-    vis_data = defaultdict(list)
-    i = 0
-    for title in title_fq.keys():
-        if i < 5:
-            five_cats[title] = 0
-            i += 1
-    for i in range(len(titles)):
-        title = str(titles[i])
-        for cat in five_cats.keys():
-            if cat in title:
-                five_cats[cat] += 1
-                five_cats_com[cat] += data["num_comments"][i]
-                five_cats_score[cat] += data["score"][i]
-    # calculate average scores and number of comments
-    for cat, score in five_cats_score.items():
-        vis_data["Score"].append(score // five_cats[cat])
-    for cat, com in five_cats_com.items():
-        vis_data["Comments"].append(com // five_cats[cat])
+    ## additional tabulation
 
-    vis_data = pd.DataFrame(vis_data, index=list(five_cats.keys()))
-    vis_data.plot(kind="bar")
-    plt.ylabel("Average Scores/Number of Comments")
-    plt.xlabel("Post Category")
-    plt.title("Average Number of Scores and Comments for Posts in 5 Categories")
+    # visulatization of scores vs comments
+    # df_scores = pd.DataFrame(list(data["score"]))
+    plt.scatter(list(data["num_comments"]),list(data["score"]))
+    plt.ylabel("Score")
+    plt.xlabel("Number of Comments")
+    plt.title("Scores vs Comments Visualized with outliers")
     plt.show()
+
+    plt.scatter(list(data["num_comments"]),list(data["score"]))
+    plt.ylabel("Score")
+    plt.xlabel("Number of Comments")
+    plt.xlim(0, 400)
+    plt.title("Scores vs Comments Visualized without outliers")
+    plt.show()
+
+
+    # vis_data = pd.DataFrame(vis_data, index=list(cats.keys()))
+    # vis_data.plot(kind="bar")
+    # plt.ylabel("Average Scores/Number of Comments")
+    # plt.xlabel("Post Category")
+    # plt.title("Average Scores and  Number of Comments for Posts in Top Categories")
+    # plt.show()
+
+    # visualization of comments
+
+    # visualization of avg # comments and avg scores
+    # titles = data["title"].str.replace(r'[^\w\s]', '', flags=re.UNICODE)
+    # title_fq = defaultdict(int)
+    # for i in range(len(titles)):
+    #     title = str(titles[i])
+    #     title = title.split(" ")
+    #     for word in title:
+    #         if word.lower() not in common:
+    #             title_fq[word] += 1
+    # title_fq = dict(reversed(sorted(title_fq.items(), key=lambda x:x[1])))
+    # cats = defaultdict(int)
+    # cats_com = defaultdict(int)
+    # cats_score = defaultdict(int)
+    # vis_data = defaultdict(list)
+    # i = 0
+    # for title in title_fq.keys():
+    #     if i < 21:
+    #         cats[title] = 0
+    #         i += 1
+    # for i in range(len(titles)):
+    #     title = str(titles[i])
+    #     for cat in cats.keys():
+    #         if cat in title:
+    #             cats[cat] += 1
+    #             cats_com[cat] += data["num_comments"][i]
+    #             cats_score[cat] += data["score"][i]
+    # # calculate average scores and number of comments
+    # for cat, score in cats_score.items():
+    #     vis_data["Score"].append(score // cats[cat])
+    # for cat, com in cats_com.items():
+    #     vis_data["Comments"].append(com // cats[cat])
+
+    # vis_data = pd.DataFrame(vis_data, index=list(cats.keys()))
+    # vis_data.plot(kind="bar")
+    # plt.ylabel("Average Scores/Number of Comments")
+    # plt.xlabel("Post Category")
+    # plt.title("Average Scores and  Number of Comments for Posts in Top Categories")
+    # plt.show()
 
 
     # print("There are", num_posts, "posts in the dataset.\n")
