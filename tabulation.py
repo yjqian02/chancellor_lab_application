@@ -9,14 +9,14 @@
 #     Date range of the dataset
 #     Top 20 most important words in the posts
 
-import pandas
-import re
-from datetime import datetime
-from collections import defaultdict
-import matplotlib.pyplot as plt
-import pandas as pd
+import re                           # use re for regex (data cleaning)
+from datetime import datetime       # use datetime to find time frame
+from collections import defaultdict # use collections to have dictionaries with default values
+import matplotlib.pyplot as plt     # use matplotlib for visualization
+import pandas as pd                 # use pandas to load data
+from time import gmtime, strftime   # use time to debug/benchmark code
+import pickle                       # use pickle to load dictionary (to save on runtime)
 
-import cProfile
 # import nltk
 # nltk.download("stopwords")
 # from nltk.corpus import stopwords
@@ -86,17 +86,21 @@ def tabulate(filename):
     num_posts = len(data)
     num_deleted = len(data_deleted)
     num_removed = len(data_removed)
-    posts_clean = data["selftext"].str.replace(r'[^\w\s]', '', flags=re.UNICODE) 
+    posts_clean = data["selftext"].str.replace(r'[^\w\s]', '', flags=re.UNICODE, regex=True) 
     # reference: https://stackoverflow.com/questions/47464658/python-efficient-way-to-remove-emojis-and-some-punctuation-from-a-large-dataset
     
+    print("Load data", strftime("%Y-%m-%d %H:%M:%S", gmtime()))
+
     # avg length of posts
     # sum up lengths of valid posts and 
     # assign each word a weighting based on frequency and
     # whether identification with "risk" words (for top 20 words)
     word_weight = defaultdict(int) 
     sum = 0
-    for i in range(len(posts_clean)):
-        post = str(posts_clean[i])
+    # cast pandas series to array for optimization (this is where the code runs slowest)
+    # reference: https://stackoverflow.com/questions/68671852/best-way-to-iterate-through-elements-of-pandas-series
+    for i, post in enumerate(posts_clean.to_numpy()):
+        post = str(post)
         post = post.split(" ")
         if post != "[deleted]" and post != "[removed]":
             sum += len(post)
@@ -114,7 +118,9 @@ def tabulate(filename):
                 # increase weight of risk words
                 if word in d_vocab:
                         word_weight[word] += 1 
-            
+
+    print("Avg length", strftime("%Y-%m-%d %H:%M:%S", gmtime()))
+
     # date range
     dates = data["created_utc"]
     dt_dates = []
@@ -123,6 +129,8 @@ def tabulate(filename):
         if "http" not in dates[i]: 
             dt_dates.append(datetime.fromtimestamp(int(dates[i])))    
     dt_dates.sort()
+
+    print("Date range", strftime("%Y-%m-%d %H:%M:%S", gmtime()))
 
     # 20 most important posts
     top_twenty = {}
@@ -133,6 +141,8 @@ def tabulate(filename):
         if count < 21 and word.lower() not in common:
             top_twenty[count] = word
             count += 1
+
+    print("20 most important", strftime("%Y-%m-%d %H:%M:%S", gmtime()))
 
     ## additional tabulation
     # visulatization of scores vs comments
@@ -150,6 +160,8 @@ def tabulate(filename):
     plt.xlim(0, 400)
     plt.title("Scores vs Comments Visualized Without Outliers")
     plt.show()
+
+    print("Additional Vis\nScores vs Comments", strftime("%Y-%m-%d %H:%M:%S", gmtime()))
 
     # visualization of date vs comments (amplified by score)
     dates = data["created_utc"]
@@ -172,6 +184,8 @@ def tabulate(filename):
     plt.xlim(0, 400)
     plt.title("Post Timeline with Score Amplification")
     plt.show()
+
+    print("Dates vs Comments", strftime("%Y-%m-%d %H:%M:%S", gmtime()))
 
     # visualization of avg # comments and avg scores
     titles = data["title"].str.replace(r'[^\w\s]', '', flags=re.UNICODE)
@@ -205,22 +219,24 @@ def tabulate(filename):
     for cat, com in cats_com.items():
         vis_data["Comments"].append(com // cats[cat])
 
-    # vis_data = pd.DataFrame(vis_data, index=list(cats.keys()))
-    # vis_data.plot(kind="bar")
-    # plt.ylabel("Average Scores/Number of Comments")
-    # plt.xlabel("Post Category")
-    # plt.title("Average Scores and  Number of Comments for Posts in Top Categories")
-    # plt.show()
+    vis_data = pd.DataFrame(vis_data, index=list(cats.keys()))
+    vis_data.plot(kind="bar")
+    plt.ylabel("Average Scores/Number of Comments")
+    plt.xlabel("Post Category")
+    plt.title("Average Scores and  Number of Comments for Posts in Top Categories")
+    plt.show()
 
-    # print("There are", num_posts, "posts in the dataset.\n")
-    # print("There are", num_deleted, "deleted posts in the dataset.\n")
-    # print("There are", num_removed, "removed posts in the dataset.\n")
-    # print("There are", len(unique_authors), "unique authors in the dataset.\n")
-    # print("The average post length is {:0.2f} words.\n".format(sum / (num_posts - num_deleted - num_removed)))
-    # print("The date range of the datset is:\n{} to {}\n".format(dt_dates[0], dt_dates[-1]))
-    # print("The twenty most important words in the posts are:")
-    # for i, word in top_twenty.items():
-    #     print(i, ":", word)
+    print("Comments per Topic", strftime("%Y-%m-%d %H:%M:%S", gmtime()))
+
+    print("There are", num_posts, "posts in the dataset.\n")
+    print("There are", num_deleted, "deleted posts in the dataset.\n")
+    print("There are", num_removed, "removed posts in the dataset.\n")
+    print("There are", len(unique_authors), "unique authors in the dataset.\n")
+    print("The average post length is {:0.2f} words.\n".format(sum / (num_posts - num_deleted - num_removed)))
+    print("The date range of the datset is:\n{} to {}\n".format(dt_dates[0], dt_dates[-1]))
+    print("The twenty most important words in the posts are:")
+    for i, word in top_twenty.items():
+        print(i, ":", word)
 
 if __name__ == "__main__":
     d_vocab = d_vocab.split(',')
