@@ -149,16 +149,7 @@ def tabulate(filename):
                 five_cats[cat] += 1
                 five_cats_com[cat] += data["num_comments"][i]
                 five_cats_score[cat] += data["score"][i]
-    # for cat, vals_lst in vis_data.items():
-    #     freq = five_cats[cat]
-    #     avg_num_com = five_cats_com[cat] // freq
-    #     avg_num_score = five_cats_score[cat] // freq
-    #     # vals_lst.append(freq)
-    #     vals_lst.append(avg_num_com)
-    #     vals_lst.append(avg_num_score)
-    # for cat, val in vis_data.items():
-    #     print(cat, val)
-    
+    # calculate average scores and number of comments
     for cat, score in five_cats_score.items():
         vis_data["Score"].append(score // five_cats[cat])
     for cat, com in five_cats_com.items():
@@ -166,14 +157,10 @@ def tabulate(filename):
 
     vis_data = pd.DataFrame(vis_data, index=list(five_cats.keys()))
     vis_data.plot(kind="bar")
-    # for cat, val in vis_data.items():
-    #     print(cat, val)
-    # plt.bar(list(five_cats.keys()), list(five_cats.values()), width = 0.2)
-    plt.ylabel("Average Number of Scores/Comments")
+    plt.ylabel("Average Scores/Number of Comments")
     plt.xlabel("Post Category")
     plt.title("Average Number of Scores and Comments for Posts in 5 Categories")
     plt.show()
-
 
 
     # print("There are", num_posts, "posts in the dataset.\n")
@@ -185,6 +172,10 @@ def tabulate(filename):
     # print("The twenty most important words in the posts are:")
     # for i, word in top_twenty.items():
     #     print(i, ":", word)
+
+    # ELIZA mock-up
+    def eliza(response):
+        return
 
 if __name__ == "__main__":
     d_vocab = d_vocab.split(',')

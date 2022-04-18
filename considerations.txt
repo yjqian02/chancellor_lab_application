@@ -62,7 +62,14 @@ Discussion:
   a | visualization of 5 most common topics (using title words)
       with number of comments and score
       reference for what library: https://www.analyticsvidhya.com/blog/2021/08/understanding-bar-plots-in-python-beginners-guide-to-data-visualization/
-  b | Topic Modeling to find top 20 words
+  b | ELIZA-like responses using regex matching of phrases
+      References: 
+      - comparing python libraries for topic modeling: 
+  
+7 | Ideas I didn't get to
+  - in application, an automated bot that sends links to helpline phone numbers/websites as reddit replies
+  - chart the emotional ranges of posts
+  - Topic Modeling to find top 20 words
       - use existing Natural Language Processing algorithms to do topic modeling
         - from what I understand topic modeling has more applications to recommender
           systems and text summarization so if we defined the "most important" words
@@ -73,13 +80,6 @@ Discussion:
           clinical research to determine these topics is necessary, I'm just giving
           examples) then it seems like topic modeling would not be appropriate for this
           situation
-      References: 
-      - comparing python libraries for topic modeling: 
-  
-7 | Ideas I didn't get to
-  - ELIZA-like responses using regex matching of phrases
-  - in application, an automated bot that sends links to helpline phone numbers/websites as reddit replies
-  - chart the emotional ranges of posts
   - some sort of analysis on connections with:
     - posts containing swear words
     - posts with self-diagnosis
