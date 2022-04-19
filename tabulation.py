@@ -114,9 +114,6 @@ def tabulate(filename, load):
     data = pd.read_csv(filename, header=0)
     data_deleted = data[data["selftext"] == "[deleted]"]
     data_removed = data[data["selftext"] == "[removed]"]
-    # vals = ["[deleted]", "[removed]"]
-    # data_clean = data[data["selftext"].isin(vals) == False] 
-    # # reference: https://www.statology.org/pandas-drop-rows-with-value/
     unique_authors = data["author"].unique()
     num_posts = len(data)
     num_deleted = len(data_deleted)
@@ -195,42 +192,52 @@ def tabulate(filename, load):
     # visualization of avg # comments and avg scores
     titles = data["title"].str.replace(r'[^\w\s]', '', flags=re.UNICODE)
     title_fq = defaultdict(int)
+
+    # calculate frequency of words in titles
     for i in range(len(titles)):
         title = str(titles[i])
         title = title.split(" ")
         for word in title:
             if word.lower() not in common:
                 title_fq[word] += 1
+
+    # find average scores and number of comments for each 
+    # category
     title_fq = dict(reversed(sorted(title_fq.items(), key=lambda x:x[1])))
-    cats = defaultdict(int)
+    cats_freq = defaultdict(int)
     cats_com = defaultdict(int)
     cats_score = defaultdict(int)
+    # dictionary holding scores and number of comments
+    # example structure: for 3 categories {["Score"]: [4, 5, 6]
+    #                                      ["Comments"]: [1, 2, 3]}
     vis_data = defaultdict(list)
     i = 0
     for title in title_fq.keys():
         if i < 21:
-            cats[title] = 0
+            cats_freq[title] = 0
             i += 1
     for i in range(len(titles)):
         title = str(titles[i])
-        for cat in cats.keys():
+        for cat in cats_freq.keys():
             if cat in title:
-                cats[cat] += 1
+                cats_freq[cat] += 1
                 cats_com[cat] += data["num_comments"][i]
                 cats_score[cat] += data["score"][i]
+
     # calculate average scores and number of comments
     for cat, score in cats_score.items():
-        vis_data["Score"].append(score // cats[cat])
+        vis_data["Score"].append(score // cats_freq[cat])
     for cat, com in cats_com.items():
-        vis_data["Comments"].append(com // cats[cat])
+        vis_data["Comments"].append(com // cats_freq[cat])
 
-    vis_data = pd.DataFrame(vis_data, index=list(cats.keys()))
+    vis_data = pd.DataFrame(vis_data, index=list(cats_freq.keys()))
     vis_data.plot(kind="bar")
     plt.ylabel("Average Scores/Number of Comments")
     plt.xlabel("Post Category")
     plt.title("Average Scores and  Number of Comments for Posts in Top Categories")
     plt.show()
 
+    # Print out tabulation results in terminal
     print("There are", num_posts, "posts in the dataset.\n")
     print("There are", num_deleted, "deleted posts in the dataset.\n")
     print("There are", num_removed, "removed posts in the dataset.\n")
