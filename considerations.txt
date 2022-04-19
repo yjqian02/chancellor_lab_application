@@ -23,7 +23,7 @@ Discussion:
 
 3 | Average post length (measured in word count)
     Assumptions:
-    - numbers count as words
+    - numbers with spaces surrounding them count as words
     What "clean-up" was done?
     - exclude [removed] and [deleted] posts from avg post length
       calculations

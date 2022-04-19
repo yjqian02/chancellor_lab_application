@@ -80,7 +80,7 @@ d_vocab = '''Ability, Abnormal, Abuse, Adolescents, Affect, Agency, Aid,
 # sum up lengths of valid posts and 
 # assign each word a weighting based on frequency and
 # whether identification with "risk" words (for top 20 words)
-def avg_len(posts_clean, data):
+def traverse_posts(posts_clean, data):
     word_weight = defaultdict(int) 
     sum = 0
     # cast pandas series to array for optimization (this is where the code runs slowest)
@@ -124,7 +124,7 @@ def tabulate(filename, load):
     word_weight = {}
     sum = 0
     if load == "True":
-        avg_len(posts_clean, data)
+        traverse_posts(posts_clean, data)
     with open("data.pickle", "rb") as handle:
         word_weight = pickle.load(handle)
     with open("sum.pickle", "rb") as handle:
