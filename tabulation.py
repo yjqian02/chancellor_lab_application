@@ -153,14 +153,14 @@ def tabulate(filename, load):
     # visulatization of scores vs comments
     # with edge points (edge points instead of outliers because I didn't do the math for
     # the to be outliers for sure)
-    plt.scatter(list(data["num_comments"]),list(data["score"]))
+    plt.scatter(list(data["num_comments"]),list(data["score"]), s=10)
     plt.ylabel("Score")
     plt.xlabel("Number of Comments")
     plt.title("Scores vs Comments Visualized With Edge Points")
     plt.show()
 
     # without edge points
-    plt.scatter(list(data["num_comments"]),list(data["score"]))
+    plt.scatter(list(data["num_comments"]),list(data["score"]), s=10)
     plt.ylabel("Score")
     plt.xlabel("Number of Comments")
     plt.xlim(0, 360)
